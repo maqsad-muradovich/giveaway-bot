@@ -1,29 +1,35 @@
+import sqlite3
+
 from aiogram import types
+from aiogram.types import ChatMemberUpdated
 from aiogram.dispatcher.filters.builtin import CommandStart
 
-from loader import dp, bot
 from data.text import txt
-
-channel_id = -1002052112624
+from loader import dp, db, bot
+from data.config import CHANEL, ADMINS
 
 @dp.message_handler(CommandStart())
 async def bot_start(message: types.Message):
-    
-    # Userning idsi
-    user_id = message.from_user.id
 
-    # await message.answer(f"{user_id}")
+    # Userning malumotlari
+    user_id   = message.from_user.id
+    user_name = message.from_user.full_name
+
+    channel_link = 'https://t.me/isqilibBot'
+
     try:
-        member = await bot.get_chat_member(chat_id=channel_id, user_id=message.from_user.id)
+        db.add_user(id=user_id, name=user_name)
+    except sqlite3.IntegrityError as err:
+        await bot.send_message(chat_id=ADMINS[0], text=err)
+
+    member = await bot.get_chat_member(chat_id=CHANEL, user_id=message.from_user.id)
+    try:
         if member.status in ['member', 'administrator', 'creator']:
-            await message.answer("Вы подписаны на канал.")
-            channel_username = 'nimadurChanel' 
-            referral_link = f"https://t.me/{channel_username}?start={user_id}"
-
-            # Отправьте пользователю реферальную ссылку
-            await message.answer(f"Ваша реферальная ссылка: {referral_link}")
+            referral_link = f"{channel_link}?start={user_id}"
+            await message.answer(f"Sizning referal havolangiz: {referral_link}")
         else:
-            await message.answer("Подпишитесь на канал, чтобы использовать бота.")
+            await message.answer(f"Botdan foydalanish uchun kanalga obuna bo'ling: {channel_link}")
     except Exception as e:
-        await message.answer(f"Ошибка при проверке подписки: {e}")
+        await message.answer(txt["error"]["uz"])
 
+    await message.answer(f"{message.text}")
