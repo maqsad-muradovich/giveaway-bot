@@ -1,4 +1,4 @@
-import sqlite3
+import sqlite3, json
 
 class Database:
     def __init__(self, path_to_date='main.db'):
@@ -31,13 +31,22 @@ class Database:
 
     def create_data_user(self):
         sql = """
-        CREATE TABLE Users(
-        id int NOT NULL,
-        name varchar(255) NOT NULL,
-        email varchar(255),
-        PRIMARY KEY(id)
+        CREATE TABLE IF NOT EXISTS Users(
+        id INTEGER PRIMARY KEY,
+        name TEXT NOT NULL
         );
-"""
+        """
+        self.execute(sql, commit=True)
+
+
+    def create_data_participants(self):
+        sql = """
+        CREATE TABLE IF NOT EXISTS Participants (
+        user_id INTEGER,
+        follower_ids TEXT,
+        PRIMARY KEY (user_id)
+        );
+        """
         self.execute(sql, commit=True)
 
 
@@ -49,12 +58,12 @@ class Database:
         return sql, tuple(parametrs.values())
         
 
-    def add_user(self, id: int, name: str, email: str = None):
+    def add_user(self, id: int, name: str):
 
         sql = """
-        INSERT INTO Users(id, name, email) Values(?,?,?)
+        INSERT INTO Users(id, name) VALUES (?, ?)
         """
-        self.execute(sql, parametrs=(id, name, email), commit=True)
+        self.execute(sql, parametrs=(id, name), commit=True)
 
 
     def select_all_users(self):
@@ -84,6 +93,25 @@ class Database:
     
     def delete_user(self):
         self.execute("DELETE FROM Users WHERE TRUE", commit=True)
+
+    def add_follower(self, user_id: int, follower_id: int):
+        current_followers = self.get_followers_list(user_id)
+        current_followers.append(follower_id)
+        follower_ids_json = json.dumps(current_followers)
+        sql = "UPDATE Participants SET follower_ids=? WHERE user_id=?"
+        self.execute(sql, parametrs=(follower_ids_json, user_id), commit=True)
+
+    def count_followers(self, user_id: int) -> int:
+        followers_list = self.get_followers_list(user_id)
+        return len(followers_list)
+
+    def get_followers_list(self, user_id: int) -> list:
+        sql = "SELECT follower_ids FROM Participants WHERE user_id=?"
+        followers_json = self.execute(sql, parametrs=(user_id,), fetchone=True)
+        if followers_json:
+            return json.loads(followers_json)
+        else:
+            return []
 
 
 def logger(statement):
