@@ -14,27 +14,22 @@ async def bot_start(message: types.Message):
 
     # Userning malumotlari
     member = await bot.get_chat_member(chat_id=CHANEL_ID, user_id=message.from_user.id)
-    follower_id = str(message.text.split(" ")[7:])
-
     try:
-        if member.status in ['member', 'administrator', 'creator']:
-            try:
-                db.add_user(id=member.user.id, name=member.user.full_name)
-            except sqlite3.IntegrityError as er:
-                await bot.send_message(chat_id=ADMINS[0], text=er)
-        elif member.status in ['kicked', 'restricted', 'Bot']: #Agar user blockda bo'lsa
-                await message.answer("Administrator bilan bog'laning")
-        else:
-            await message.answer(f"Botdan foydalanish uchun kanalga obuna bo'ling: {CHANEL_LINK}", reply_markup=check_subscription)
-    except Exception as err:
-        await bot.send_message(chat_id=ADMINS[0], text=f"{err}")
-        await message.answer("Uzur tizimda nosozlik yuz berdi siz bilan tez orada adminlar bo'glanadi")
+        text = int(message.text.split(" ")[1])
+        if text != '':
+            db.add_follower(user_id=text, follower_id=member.user.id)
+            await bot.send_message(chat_id=text, text=f"Sizning havolangiz orqali {member.user.first_name} kanalga obuna boldi")
+    except: 
+        pass
+    
+    await message.answer(f"Assalomu aleykum")
+    
+    if member.status in ['member', 'administrator', 'creator']:
+        await message.answer(f"Mana sizning referal havolangiz:\n{BOT_LINK}?start={member.user.id}")
 
-
-
-    # if follower_id != '':
-    #     if follower_id != str(member.user.id):
-    #         db.add_follower(user_id=follower_id, follower_id=member.user.id)
-    #         await bot.send_message(chat_id=follower_id, text=f"count followers")
-    #     else:
-    #         await message.answer("O'zizni havolangizdan registratsiyadan o'tish mumkin emas!")
+        try:
+            db.add_user(id=member.user.id, name=member.user.full_name)
+        except sqlite3.IntegrityError as err:
+            await bot.send_message(chat_id=ADMINS[0], text=err)
+    else:
+        await message.answer(text=f"Givda Ishtrok etish uchun qanalga obuna bo'ling:\n{CHANEL_LINK}", reply_markup=check_subscription)
