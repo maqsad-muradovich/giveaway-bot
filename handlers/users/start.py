@@ -4,7 +4,6 @@ from aiogram import types
 from aiogram.types import ChatMemberUpdated
 from aiogram.dispatcher.filters.builtin import CommandStart
 
-from data.text import txt
 from loader import dp, db, bot
 from keyboards.inline.InlineButtons import check_subscription
 from data.config import CHANEL_ID, ADMINS, CHANEL_LINK, BOT_LINK
@@ -32,4 +31,4 @@ async def bot_start(message: types.Message):
         except sqlite3.IntegrityError as err:
             await bot.send_message(chat_id=ADMINS[0], text=err)
     else:
-        await message.answer(text=f"Givda Ishtrok etish uchun qanalga obuna bo'ling:\n{CHANEL_LINK}", reply_markup=check_subscription)
+        await message.answer(text=f"Givda ishtrok etish uchun qanalga obuna bo'ling:\n{CHANEL_LINK}", reply_markup=check_subscription)
