@@ -2,7 +2,6 @@ import sqlite3
 
 from aiogram import types
 
-from data.text import txt
 from loader import dp, db, bot
 from data.config import CHANEL_ID, BOT_LINK
 
