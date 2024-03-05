@@ -16,8 +16,8 @@ async def send_file(message: types.Message):
         data += f"{user_id},{name}\n"
 
     with open('data/users.csv', 'w') as file:
-        file.write(data)
         file.write(header)
+        file.write(data)
 
     with open('data/users.csv', 'rb') as file:
-        await bot.send_document(file)
+        await bot.send_document(chat_id=ADMINS[0], document=file)

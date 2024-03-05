@@ -6,7 +6,6 @@ async def set_default_commands(dp):
         [
             types.BotCommand("start", "Botni ishga tushurish"),
             types.BotCommand("help", "Qollanma"),
-            types.BotCommand("myfriends","Mening do'stlarim"),
-            types.BotCommand("mylink", "Mening referal havolam"),
+            types.BotCommand("myusers", "Mening dostlarim."),
         ]
     )
