@@ -15,13 +15,15 @@ async def bot_start(message: types.Message):
     member = await bot.get_chat_member(chat_id=CHANEL_ID, user_id=message.from_user.id)
     try:
         text = int(message.text.split(" ")[1])
-        if text != '':
+        if text != '' :
             db.add_follower(user_id=text, follower_id=member.user.id)
-            await bot.send_message(chat_id=text, text=f"Sizning havolangiz orqali {member.user.first_name} kanalga obuna boldi")
+            if member.user.id != text:
+                await bot.send_message(chat_id=text, text=f"Sizning havolangiz orqali {member.user.first_name} kanalga obuna boldi")
+            else:
+                await message.answer("O'zingizning havolangizdan otish mumkin emas!")
     except: 
         pass
     
-    await message.answer(f"Assalomu aleykum")
     
     if member.status in ['member', 'administrator', 'creator']:
         await message.answer(f"Mana sizning referal havolangiz:\n{BOT_LINK}?start={member.user.id}")
@@ -31,4 +33,5 @@ async def bot_start(message: types.Message):
         except sqlite3.IntegrityError as err:
             await bot.send_message(chat_id=ADMINS[0], text=err)
     else:
+        await message.answer(f"Assalomu aleykum")
         await message.answer(text=f"Givda ishtrok etish uchun qanalga obuna bo'ling:\n{CHANEL_LINK}", reply_markup=check_subscription)
