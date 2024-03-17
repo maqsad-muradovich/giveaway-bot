@@ -1,6 +1,7 @@
 from aiogram import types
 
 from loader import dp, db, bot
+from data.text import textReferalLink
 from data.config import CHANEL_ID, BOT_LINK
 
 
@@ -13,7 +14,7 @@ async def process_callback_button(callback_query: types.CallbackQuery):
     if member.status in ['member', 'administrator']:
         referral_link = f"{BOT_LINK}?start={member.user.id}"
         await callback_query.answer(f"Rahmat")
-        await bot.send_message(chat_id=member.user.id, text=f"Sizning referal havolangiz: {referral_link}")
+        await bot.send_message(chat_id=member.user.id, text=f"{textReferalLink} {referral_link}")
         try:
             db.add_user(id=member.user.id, name=member.user.full_name)
         except:
